@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ezlearning-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ezlearning
+  template:
+    metadata:
+      labels:
+        app: ezlearning
+    spec:
+      containers:
+        - name: ezlearning
+          image: alacherif10/ezlearning:latest
+          ports:
+            - containerPort: 8080
