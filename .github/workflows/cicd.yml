@@ -90,43 +90,43 @@ jobs:
         SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
     
            
-     
-    build_docker_image_and_push:
-    runs-on: self-hosted
-    needs: Build_project_and_sonar_scan
-    steps:
-    - uses: actions/checkout@v4
-    - name: Download JAR artifact
-      uses: actions/download-artifact@v4
-      with:
+  Build_docker_image_and_push:
+     runs-on: self-hosted
+     needs: Build_project_and_sonar_scan
+     steps:
+     - uses: actions/checkout@v4
+     - name: Download JAR artifact
+       uses: actions/download-artifact@v4
+       with:
         name: app-jar
         path: app
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
+     - name: Login to Docker Hub
+       uses: docker/login-action@v3
+       with:
         username: ${{ vars.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Build and Push Docker image
-      uses: docker/build-push-action@v6
-      with:
+     - name: Set up QEMU
+       uses: docker/setup-qemu-action@v3
+     - name: Set up Docker Buildx
+       uses: docker/setup-buildx-action@v3
+     - name: Build and Push Docker image
+       uses: docker/build-push-action@v6
+       with:
         context: .
         push: true
         tags: alacherif10/ezlearning:latest
         file: ./Dockerfile
 
-    - name: Stop old container (if any)
-      run: |
+     - name: Stop old container (if any)
+       run: |
         docker stop ezlearning || true
         docker rm ezlearning || true
 
-    - name: Run new container
-      run: |
+     - name: Run new container
+       run: |
         docker run -d --name ezlearning -p 8080:8080 alacherif10/ezlearning:latest
+
 
 
     
