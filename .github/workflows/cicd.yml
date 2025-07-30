@@ -128,7 +128,8 @@ jobs:
         docker run -d --name ezlearning -p 8080:8080 alacherif10/ezlearning:latest
  
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    needs: Build_docker_image_and_push
     steps:
      - name: install the gcloud cli
        uses: google-github-actions/setup-gcloud@v0
