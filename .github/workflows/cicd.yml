@@ -91,7 +91,7 @@ jobs:
     
            
      
-  build_docker_image_and_push:
+    build_docker_image_and_push:
     runs-on: self-hosted
     needs: Build_project_and_sonar_scan
     steps:
@@ -118,5 +118,15 @@ jobs:
         push: true
         tags: alacherif10/ezlearning:latest
         file: ./Dockerfile
+
+    - name: Stop old container (if any)
+      run: |
+        docker stop ezlearning || true
+        docker rm ezlearning || true
+
+    - name: Run new container
+      run: |
+        docker run -d --name ezlearning -p 8080:8080 alacherif10/ezlearning:latest
+
 
     
