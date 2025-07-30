@@ -144,4 +144,5 @@ jobs:
        run: |
         gcloud container clusters get-credentials  autopilot-cluster-1 --region us-central1
         sed -i "s/GOOGLE_PROJECT/$GOOGLE_PROJECT/g" deployment.yaml
+        kubectl delete deployment ezlearning-deployment --ignore-not-found
         kubectl apply -f deployment.yaml
