@@ -126,33 +126,40 @@ jobs:
      - name: Run new container
        run: |
         docker run -d --name ezlearning -p 8080:8080 alacherif10/ezlearning:latest
+
   deploy_to_k8s:
    runs-on: ubuntu-latest
    needs: Build_docker_image_and_push
+
    steps:
-   - name: Set up gcloud CLI and authenticate
+   - name: Checkout code
+     uses: actions/checkout@v4
+
+   - name: Authenticate to Google Cloud
+     uses: google-github-actions/auth@v2
+     with:
+      credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+   - name: Setup gcloud CLI
      uses: google-github-actions/setup-gcloud@v1
      with:
-        project_id: deployment01
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
+      project_id: deployment01
 
    - name: Get GKE credentials
      run: |
-        gcloud container clusters get-credentials autopilot-cluster-1 --region us-central1 --project deployment01
+      gcloud container clusters get-credentials autopilot-cluster-1 \
+        --region us-central1 \
+        --project deployment01
 
    - name: Deploy to GKE
      run: |
-        # Met à jour l'image si le déploiement existe, sinon le crée
-        if kubectl get deployment ezlearning-deployment; then
-          kubectl set image deployment/ezlearning-deployment ezlearning=alacherif10/ezlearning:latest --record
-        else
-          kubectl create deployment ezlearning-deployment --image=alacherif10/ezlearning:latest
-        fi
-        
-        # Expose le service LoadBalancer uniquement s’il n’existe pas
-        if ! kubectl get service ezlearning-deployment; then
-          kubectl expose deployment ezlearning-deployment --type=LoadBalancer --port=80 --target-port=8080
-        fi
+      if kubectl get deployment ezlearning-deployment; then
+        kubectl set image deployment/ezlearning-deployment ezlearning=alacherif10/ezlearning:latest --record
+      else
+        kubectl create deployment ezlearning-deployment --image=alacherif10/ezlearning:latest
+      fi
 
-    
+      if ! kubectl get service ezlearning-deployment; then
+        kubectl expose deployment ezlearning-deployment --type=LoadBalancer --port=80 --target-port=8080
+      fi
+
